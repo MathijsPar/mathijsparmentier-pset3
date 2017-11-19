@@ -7,7 +7,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -25,9 +24,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class CategoryActivity extends AppCompatActivity {
 
     List<String> categories = new ArrayList<String>();
 
@@ -36,13 +34,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Get Category
+        Intent intent = getIntent();
+        final String receivedCategory = intent.getStringExtra("category");
+        System.out.println(receivedCategory);
+
         // Set up App Bar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+        myToolbar.setTitle(receivedCategory);
 
         // Instantiate Requestqueue
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://resto.mprog.nl/categories";
+        String url = "https://resto.mprog.nl/menu";
 
         // Request
         JsonObjectRequest jsObjRequest = new JsonObjectRequest(
@@ -50,9 +54,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject myObject) {
                 try {
-                    JSONArray items = myObject.getJSONArray("categories");
+                    JSONArray items = myObject.getJSONArray("items");
                     for (int i = 0; i < items.length(); i++) {
-                        categories.add(items.getString(i));
+                        if(items.getJSONObject(i).optString("category").equals(receivedCategory)) {
+                            categories.add(items.getJSONObject(i).optString("name"));
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -61,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 // Set up adapter
                 ArrayAdapter<String> adapter =
                         new ArrayAdapter<String>(
-                                MainActivity.this,
+                                CategoryActivity.this,
                                 android.R.layout.simple_list_item_1,
                                 categories);
                 ListView list = (ListView) findViewById(R.id.categorylist);
@@ -69,11 +75,12 @@ public class MainActivity extends AppCompatActivity {
                 list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                Intent categoryIntent = new Intent(view.getContext(), CategoryActivity.class);
-                                categoryIntent.putExtra("category", String.valueOf(adapterView.getItemAtPosition(i)));
-                                startActivity(categoryIntent);
-                            }
-                        });
+                        Intent dishIntent = new Intent(view.getContext(), dishActivity.class);
+                        System.out.println("testtes12  " + String.valueOf(adapterView.getItemAtPosition(i)));
+                        dishIntent.putExtra("dish", String.valueOf(adapterView.getItemAtPosition(i)));
+                        startActivity(dishIntent);
+                    }
+                });
             }
         }, new Response.ErrorListener() {
 

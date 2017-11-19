@@ -3,8 +3,8 @@
 
   <item
       android:id="@+id/cart_button"
-      android:icon="@drawable/ic_shopping_basket_black_24dp"
-      android:title="cart"
+      android:icon="@drawable/ic_shopping_basket_white_24dp"
+      android:title="@string/shopping_cart"
       app:showAsAction="always" />
 
 </menu>
